@@ -10,15 +10,31 @@ fn to_format_hex(elements: &[u8], separator_index: usize) -> String {
             hex += " ";
         }
     }
+
     if !hex.is_empty() {
         return hex[..hex.len() - 1].to_string();
     }
     hex
 }
 
+
+
+
+
+
+
+
+
 #[allow(dead_code)]
 fn to_format_ascii(elements: &[u8]) -> String {
     let mut ascii = String::new();
+
+
+
+
+
+
+
     for element in elements {
         if element.is_ascii_alphanumeric() || element.is_ascii_punctuation() || *element == 0x20 {
             ascii += str::from_utf8(&[*element]).unwrap();
@@ -29,6 +45,17 @@ fn to_format_ascii(elements: &[u8]) -> String {
     ascii
 }
 
+
+
+
+
+
+
+
+
+
+
+
 #[allow(dead_code)]
 pub fn hexdump(content: String, length: usize) -> String {
     let mut hexdump = String::new();
@@ -38,6 +65,7 @@ pub fn hexdump(content: String, length: usize) -> String {
 
     for chunk in content.as_bytes().chunks(step) {
         let l: Vec<u8> = chunk.to_vec();
+
         hexdump += &format!(
             "{:08x}|  {: <width$}  |{}|",
             offset,

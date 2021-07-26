@@ -3,6 +3,14 @@ use std::str;
 #[allow(dead_code)]
 fn to_format_hex(elements: &[u8], separator_index: usize) -> String {
     let mut hex = String::new();
+
+    if separator_index == 1 {
+        for element in elements {
+            hex += &format!("{:02x}", element);
+        }
+        return hex;
+    }
+
     for (i, element) in elements.iter().enumerate() {
         hex += &format!("{:02x}", element);
         hex += " ";
@@ -34,14 +42,23 @@ pub fn hexdump(content: String, length: usize) -> String {
     let mut hexdump = String::new();
     let mut offset = 0;
     let step = length;
-    let width = 3 * length;
+    // Width of the hex values, excluding the "  " padding on each side
+    let width = match length {
+        1 => 2,
+        _ => 3 * length,
+    };
+    // Handle case where we do not want to split with an extra space
+    let separator_index = match length {
+        1 => 1,
+        _ => (length as u64 as f64 / 2.0).floor() as usize,
+    };
 
     for chunk in content.as_bytes().chunks(step) {
         let l: Vec<u8> = chunk.to_vec();
         hexdump += &format!(
             "{:08x}|  {: <width$}  |{}|",
             offset,
-            to_format_hex(l.as_slice(), (length as u64 as f64 / 2.0).floor() as usize),
+            to_format_hex(l.as_slice(), separator_index),
             to_format_ascii(l.as_slice()),
             width = width
         );
@@ -121,6 +138,23 @@ mod tests {
             concat!(
                 "00000000|  41 41  41 41  |AAAA|\n",
                 "00000004|  42 42  42 42  |BBBB|\n",
+            )
+        );
+    }
+
+    #[test]
+    fn basic_hexdump_1() {
+        assert_eq!(
+            hexdump("AAAABBBB".to_string(), 1),
+            concat!(
+                "00000000|  41  |A|\n",
+                "00000001|  41  |A|\n",
+                "00000002|  41  |A|\n",
+                "00000003|  41  |A|\n",
+                "00000004|  42  |B|\n",
+                "00000005|  42  |B|\n",
+                "00000006|  42  |B|\n",
+                "00000007|  42  |B|\n",
             )
         );
     }
